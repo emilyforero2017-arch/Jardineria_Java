@@ -1,0 +1,5 @@
+# Copias generadas por Maven; el archivo fuente config.properties se versiona.
+/target/classes/config.properties
+
+# El JAR generado puede incluir config.properties.
+/target/*.jar
