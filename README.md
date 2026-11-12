@@ -4,18 +4,15 @@ Aplicación de escritorio para administrar la información de una empresa de jar
 
 La aplicación organiza la información de oficinas, empleados, clientes, gamas de productos, productos, pedidos, detalles de pedidos y pagos. Su estructura toma como referencia los principios de la **arquitectura hexagonal**, separando el dominio, los casos de uso y los componentes técnicos.
 
-## Contenido
+## Explora el proyecto
 
-- [Funcionalidades](#funcionalidades)
-- [Tecnologías](#tecnologías)
-- [Requisitos](#requisitos)
-- [Configuración y ejecución](#configuración-y-ejecución)
-- [Base de datos y relaciones](#base-de-datos-y-relaciones)
-- [Arquitectura](#arquitectura)
-- [Estructura del proyecto](#estructura-del-proyecto)
-- [Flujo de una operación](#flujo-de-una-operación)
-- [Estado y consideraciones](#estado-y-consideraciones)
-- [Créditos](#créditos)
+| El proyecto | Guía técnica |
+| :--- | :--- |
+| [Funcionalidades](#funcionalidades) | [Requisitos](#requisitos) |
+| [Tecnologías](#tecnologías) | [Configuración y ejecución](#configuración-y-ejecución) |
+| [Arquitectura](#arquitectura) | [Base de datos y relaciones](#base-de-datos-y-relaciones) |
+| [Estructura del proyecto](#estructura-del-proyecto) | [Flujo de una operación](#flujo-de-una-operación) |
+| [Estado y consideraciones](#estado-y-consideraciones) | [Créditos](#créditos) |
 
 ## Funcionalidades
 
