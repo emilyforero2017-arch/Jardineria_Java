@@ -70,7 +70,7 @@ public final class RegistroDialog {
             entrada.setPromptText(dato.ayuda());
             entrada.setMinWidth(0);
             entrada.setMaxWidth(Double.MAX_VALUE);
-            if (editando && (i == 0 || ("detalle de pedido".equals(entidad) && i == 1))) entrada.setEditable(false);
+            if (editando && (i == 0 || (("detalle de pedido".equals(entidad) || "pago".equals(entidad)) && i == 1))) entrada.setEditable(false);
             entradas.add(entrada);
             Label etiqueta = new Label(dato.nombre() + (dato.obligatorio() ? " *" : ""));
             etiqueta.getStyleClass().add("form-label");

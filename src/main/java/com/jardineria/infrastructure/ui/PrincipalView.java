@@ -139,6 +139,8 @@ public class PrincipalView {
             vista = PersonasController.pedidos(repositorios).crearVista();
         } else if ("Detalles de pedidos".equals(nombre)) {
             vista = PersonasController.detallesPedido(repositorios).crearVista();
+        } else if ("Pagos".equals(nombre)) {
+            vista = PersonasController.pagos(repositorios).crearVista();
         } else {
             vista = crearProximaSeccion(nombre);
         }

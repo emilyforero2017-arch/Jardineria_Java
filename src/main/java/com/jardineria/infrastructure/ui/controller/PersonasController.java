@@ -2,6 +2,8 @@ package com.jardineria.infrastructure.ui.controller;
 
 import com.jardineria.application.usecase.clienteUseCase;
 import com.jardineria.application.usecase.pedidoUseCase;
+import com.jardineria.application.usecase.pagoUseCase;
+import com.jardineria.domain.entity.pago;
 import com.jardineria.application.usecase.detallepedidoUseCase;
 import com.jardineria.domain.entity.pedido;
 import com.jardineria.domain.entity.detallepedido;
@@ -230,6 +232,37 @@ public final class PersonasController<T> {
                 new Columna<>("LÍNEA", d -> String.valueOf(d.getNumeroLinea()), 90)));
     }
 
+    public static PersonasController<pago> pagos(fabricaRepositorios repositorios) {
+        pagoUseCase uso = new pagoUseCase(repositorios.crearPagoRepository());
+        return new PersonasController<>("pago", "pagos", uso::listar, uso::registrar, uso::actualizar,
+            p -> uso.eliminar(p.getCodigoCliente(), p.getIdTransaccion()),
+            p -> String.valueOf(p.getCodigoCliente()), p -> "Transacción " + p.getIdTransaccion(),
+            p -> List.of(campo("Código del cliente", p == null ? null : p.getCodigoCliente(), true, 0, "Código de un cliente existente"),
+                campo("ID de transacción", p == null ? null : p.getIdTransaccion(), true, 50, "Identificador de la transacción"),
+                campo("Forma de pago", p == null ? null : p.getFormaPago(), true, 40, "Ej. Transferencia"),
+                campo("Fecha del pago", p == null ? null : p.getFechaPago(), true, 10, "AAAA-MM-DD"),
+                campo("Total", p == null ? null : p.getTotal(), true, 0, "Ej. 2500.00")),
+            v -> new pago(entero(v.get(0)), v.get(2), v.get(1), LocalDate.parse(v.get(3)), new BigDecimal(v.get(4))),
+            v -> {
+                String error = validarEnteros(v, 0);
+                if (error != null) return error;
+                try {
+                    LocalDate fecha = LocalDate.parse(v.get(3));
+                    if (fecha.getYear() < 1000 || fecha.getYear() > 9999)
+                        return "La fecha debe estar entre los años 1000 y 9999.";
+                } catch (DateTimeParseException ex) {
+                    return "Ingresa una fecha válida con formato AAAA-MM-DD, por ejemplo 2026-11-12.";
+                }
+                if (!dineroValido(v.get(4))) return "Ingresa un total no negativo con hasta 13 enteros y 2 decimales.";
+                return null;
+            },
+            List.of(new Columna<>("CLIENTE", p -> String.valueOf(p.getCodigoCliente()), 110),
+                new Columna<>("TRANSACCIÓN", pago::getIdTransaccion, 200),
+                new Columna<>("FORMA DE PAGO", pago::getFormaPago, 160),
+                new Columna<>("FECHA", p -> cadena(p.getFechaPago()), 120),
+                new Columna<>("TOTAL", p -> cadena(p.getTotal()), 130)));
+    }
+
     private static Campo textoLargo(String nombre, String valor, String ayuda) {
         return new Campo(nombre, valor, false, 0, ayuda, true, false);
     }
@@ -241,7 +274,9 @@ public final class PersonasController<T> {
     public Parent crearVista() {
         Label ceja = new Label("ADMINISTRACIÓN  /  " + plural.toUpperCase(Locale.ROOT)); ceja.getStyleClass().add("eyebrow");
         Label titulo = new Label("Gestión de " + plural); titulo.getStyleClass().add("page-title");
-        Label subtitulo = new Label("Consulta y organiza la información de tus " + plural + "."); subtitulo.getStyleClass().add("page-subtitle");
+        Label subtitulo = new Label("pago".equals(nombre)
+                ? "Consulta y organiza los pagos registrados para tus clientes."
+                : "Consulta y organiza la información de tus " + plural + "."); subtitulo.getStyleClass().add("page-subtitle");
         TextField buscar = new TextField(); buscar.setPromptText("Buscar por código, nombre o datos visibles…");
         buscar.getStyleClass().add("search-field"); HBox.setHgrow(buscar, Priority.ALWAYS); buscar.setMaxWidth(Double.MAX_VALUE);
         buscar.textProperty().addListener((obs, previo, valor) -> {
@@ -466,9 +501,13 @@ public final class PersonasController<T> {
     }
     private String mensajeError(Throwable error) {
         for (Throwable causa = error; causa != null; causa = causa.getCause()) if (causa instanceof SQLException sql) {
-            if (sql.getErrorCode() == 1062) return "detalle de pedido".equals(nombre)
-                    ? "Este producto ya está registrado en ese pedido. Selecciona el detalle existente para actualizarlo."
-                    : "Ya existe un registro con ese código. Elige otro.";
+            if (sql.getErrorCode() == 1062) {
+                if ("detalle de pedido".equals(nombre))
+                    return "Este producto ya está registrado en ese pedido. Selecciona el detalle existente para actualizarlo.";
+                if ("pago".equals(nombre))
+                    return "Ya existe un pago con ese cliente e ID de transacción. Revisa los datos ingresados.";
+                return "Ya existe un registro con ese código. Elige otro.";
+            }
             if (sql.getErrorCode() == 1452) return "El dato relacionado no existe. Comprueba los códigos indicados y que el registro relacionado esté creado.";
             if (sql.getErrorCode() == 1451) return "No se puede eliminar porque existen otros registros relacionados. Por ejemplo, un pedido puede tener detalles asociados.";
         }
